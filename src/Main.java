@@ -5,8 +5,8 @@ public class Main {
 
     private static Point[] points;
 
-    public static float distance(int a, int b){
-        int sum=0;
+    public static double distance(int a, int b){
+        double sum=0;
         Ligne ligne = new Ligne(points[a], points[b]);
         for(int i=a+1; i<b; i++){
             sum+=points[i].distanceTo(ligne);
