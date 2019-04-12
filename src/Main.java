@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.util.*;
 
 public class Main {
@@ -18,15 +19,17 @@ public class Main {
         return lignes;
     }
 
-    public static Set<Ligne> algoDynamique(double C){
-        HashSet<Ligne> lignes = new HashSet<>();
+    public static State algoDynamique(double C){
         int n = points.length-1;
         Double[][] scores= new Double[n+1][n+1];
-        State s = algoDynamique_rec(C, 1, n, lignes, scores);
-        return s.lignes;
+        State state = algoDynamique_rec(C, 1, n, scores);
+        for(Double[] d : scores){
+            System.out.println(Arrays.toString(d));
+        }
+        return state;
     }
 
-    public static State algoDynamique_rec(double C, int a, int b, Set<Ligne> lignes, Double[][]scores) {
+    public static State algoDynamique_rec(double C, int a, int b, Double[][]scores) {
         if(b-a==1){
             HashSet<Ligne> lignesN = new HashSet<>();
             lignesN.add(new Ligne(points[a], points[b]));
@@ -34,24 +37,21 @@ public class Main {
         }
         if(scores[a][b]==null)
             scores[a][b] = distance(a, b)+C;
-        else
-            a=a;
-        double bestScore = scores[a][b];
-        Integer bestI=null;
+
+        HashSet<Ligne> lignesN = new HashSet<>();
+        lignesN.add(new Ligne(points[a], points[b]));
+        State bestState=new State(lignesN, scores[a][b]);
         for(int i=a+1; i<b; i++) {
-            State sG = algoDynamique_rec(C, a, i, lignes, scores);
-            State sD = algoDynamique_rec(C, i, b, lignes, scores);
+            State sG = algoDynamique_rec(C, a, i, scores);
+            State sD = algoDynamique_rec(C, i, b, scores);
             double score = sG.score + sD.score;
-            if(score <bestScore){
-                bestScore=score;
-                bestI=i;
+            if(score < bestState.score){
+                bestState.score=score;
+                sG.lignes.addAll(sD.lignes);
+                bestState=new State(sG.lignes, sG.score+sD.score);
             }
         }
-        HashSet<Ligne> lignesN = new HashSet<>(lignes);
-        if(bestI!=null){
-            lignesN.add(new Ligne(points[a], points[b]));
-        }
-        return new State(lignesN, bestScore);
+        return bestState;
     }
 
     public static void main(String[] args){
@@ -63,9 +63,10 @@ public class Main {
 
         System.out.println();
 
-        Set<Ligne> lignes = algoDynamique(0);
+        double c = Double.parseDouble(JOptionPane.showInputDialog("valeur de  C : "));
+        State s = algoDynamique(c);
 
-        Visu v1 = new Visu(pointSet,lignes,"Solution de score "+42);
+        Visu v1 = new Visu(pointSet,s.lignes,"Solution de score "+s.score);
 
     }
 
