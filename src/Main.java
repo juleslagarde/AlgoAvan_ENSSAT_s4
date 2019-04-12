@@ -7,8 +7,9 @@ public class Main {
 
     public static float distance(int a, int b){
         int sum=0;
+        Ligne ligne = new Ligne(points[a], points[b]);
         for(int i=a+1; i<b; i++){
-
+            sum+=points[i].distanceTo(ligne);
         }
         return sum;
     }
