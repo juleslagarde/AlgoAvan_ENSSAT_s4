@@ -24,6 +24,9 @@ public class Point {
 		double y1 = l.getp1().y;
 		double x2 = l.getp2().x;
 		double y2 = l.getp2().y;
+		if(y1==y2){//si la ligne est horizontale
+			return Math.abs(y-y1);
+		}
 		double a = (y2-y1)/(x2-x1); //y=ax+b
 		double b = y1-(a*x1);
 		double c = y-(-x/a); //droite perpendiculaire passant par 'this' : y=dx+c
