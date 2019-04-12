@@ -1,5 +1,4 @@
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class Main {
 
@@ -19,14 +18,40 @@ public class Main {
         return lignes;
     }
 
-    public static Set<Ligne> algoDynamique(){
+    public static Set<Ligne> algoDynamique(double C){
         HashSet<Ligne> lignes = new HashSet<>();
-        int[][] scores= new int[points.length][points.length];
+        int n = points.length-1;
+        Double[][] scores= new Double[n+1][n+1];
+        State s = algoDynamique_rec(C, 1, n, lignes, scores);
+        return s.lignes;
+    }
 
-
-
-
-        return lignes;
+    public static State algoDynamique_rec(double C, int a, int b, Set<Ligne> lignes, Double[][]scores) {
+        if(b-a==1){
+            HashSet<Ligne> lignesN = new HashSet<>();
+            lignesN.add(new Ligne(points[a], points[b]));
+            return new State(lignesN, C);
+        }
+        if(scores[a][b]==null)
+            scores[a][b] = distance(a, b)+C;
+        else
+            a=a;
+        double bestScore = scores[a][b];
+        Integer bestI=null;
+        for(int i=a+1; i<b; i++) {
+            State sG = algoDynamique_rec(C, a, i, lignes, scores);
+            State sD = algoDynamique_rec(C, i, b, lignes, scores);
+            double score = sG.score + sD.score;
+            if(score <bestScore){
+                bestScore=score;
+                bestI=i;
+            }
+        }
+        HashSet<Ligne> lignesN = new HashSet<>(lignes);
+        if(bestI!=null){
+            lignesN.add(new Ligne(points[a], points[b]));
+        }
+        return new State(lignesN, bestScore);
     }
 
     public static void main(String[] args){
@@ -36,12 +61,21 @@ public class Main {
         for(Point p: pointSet)
             points[(int)p.getx()]=p;
 
-        points[2].distanceTo(new Ligne(points[1], points[5]));
+        System.out.println();
 
-        Set<Ligne> lignes = algoEssaisSuccessif();
+        Set<Ligne> lignes = algoDynamique(0);
 
         Visu v1 = new Visu(pointSet,lignes,"Solution de score "+42);
 
     }
 
+    static class State{
+        public Set<Ligne> lignes;
+        public double score;
+
+        public State(Set<Ligne> lignes, double score) {
+            this.lignes = lignes;
+            this.score = score;
+        }
+    }
 }
