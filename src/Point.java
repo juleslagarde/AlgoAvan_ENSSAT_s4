@@ -19,6 +19,23 @@ public class Point {
 		y = ord;
 	}
 
+	public double distanceTo(Ligne l){
+		double x1 = l.getp1().x;
+		double y1 = l.getp1().y;
+		double x2 = l.getp2().x;
+		double y2 = l.getp2().y;
+		double a = (y2-y1)/(x2-x1); //y=ax+b
+		double b = y1-(a*x1);
+		double c = y-(-x/a); //droite perpendiculaire passant par 'this' : y=dx+c
+		Point projection = new Point((a*(c-b))/(a*a+1), (a*a*c+b)/(a*a+1));
+		return distanceTo(projection);
+	}
+
+	public double distanceTo(Point a){
+		double dx=x-a.getx();
+		double dy=y-a.gety();
+		return Math.sqrt(dx*dx+dy*dy);
+	}
 
 	/**
 	 * Récupération de la valeur de l'abscisse du point.
