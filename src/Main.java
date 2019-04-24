@@ -21,7 +21,8 @@ public class Main {
         int n=points.length-1;
         double SD=0;
         int m=0;
-        double opt=10000;
+        double[] opt=new double[1];
+        opt[0]=10000;
         int[] X=new int[n];
         int[] ChemOpt=new int[n];
         for (int i=0;i<n;i++){
@@ -30,12 +31,6 @@ public class Main {
         }
         X[0]=1;
         appligbri(0,X,ChemOpt,opt,n,SD,C,m);
-
-
-        System.out.println("Fin Appligbri");
-        for (int j=0;j<n;j++){
-            System.out.println(ChemOpt[j]);
-        }
         int prec=1;
         for (int i=2;i<=n;i++){
             if (ChemOpt[i-1]==1){
@@ -43,40 +38,39 @@ public class Main {
                 prec=i;
             }
         }
-        return new State(lignes, opt);
+        return new State(lignes, opt[0]);
     }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private static void appligbri(int i, int[] X, int[] ChemOpt, double opt, int n, double SD, double C, int m){
+    private static void appligbri(int i, int[] X, int[] ChemOpt, double[] opt, int n, double SD, double C, int m){
         for (int Xi=n-1;Xi>i;Xi--){
             X[Xi]=1;
             m++;
             SD+=distance(i+1,Xi+1);
-            //if (opt>(m+1)*C+SD){
-            if (Xi==n-1){
-                if (opt>m*C+SD){
-                    opt=(double)m*C+SD;
-                    System.out.println("Nouveau");
-                    for (int j=0;j<n;j++){
-                        ChemOpt[j]=X[j];
-                        System.out.println(ChemOpt[j]);
+            if (opt[0]>(m+1)*C+SD){
+                //System.out.println("Passage");
+                if (Xi==n-1){
+                    if (opt[0]>(double)m*C+SD){
+                        //System.out.println(opt[0]);
+                        opt[0]=(double)m*C+SD;
+                        //System.out.println("Nouveau");
+                        for (int j=0;j<n;j++){
+                            ChemOpt[j]=X[j];
+                            //System.out.println(ChemOpt[j]);
+                        }
+                        //System.out.println("-----");
+                        //System.out.println(opt[0]);
+                        //System.out.println("-----");
                     }
-                    System.out.println("-----");
+                }else{
+                    appligbri(Xi,X,ChemOpt,opt,n,SD,C,m);
                 }
-            }else{
-                appligbri(Xi,X,ChemOpt,opt,n,SD,C,m);
             }
-            //}
             X[Xi]=0;
             m--;
             SD-=distance(i+1,Xi+1);
         }
-        System.out.println("Renvoi");
-        for (int j=0;j<n;j++){
-            System.out.println(ChemOpt[j]);
-        }
-        System.out.println("-----");
     }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
