@@ -116,43 +116,36 @@ public class Main {
 
     public static State algoDynamique(double C) {
         int n = points.length - 1;
-        Double[][] scores = new Double[n + 1][n + 1];
-        for(int a=1; a<points.length; a++)
-            for(int b=a+1; b<points.length; b++)
-                scores[a][b] = distance(a, b) + C;
-        State state = algoDynamique_rec(C, 1, n, scores);
-//        for (Double[] d : scores) {
-//            System.out.println(Arrays.toString(d));
-//        }
-        return state;
-    }
-
-    public static State algoDynamique_rec(double C, int a, int b, Double[][] scores) {
-        compteur++;
-        if (b - a == 1) {
-            HashSet<Ligne> lignesN = new HashSet<>();
-            lignesN.add(new Ligne(points[a], points[b]));
-            return new State(lignesN, C);
+        State[][] states = new State[n + 1][n + 1];
+        for (int i = 0; i < n-1; i++) {
+            HashSet<Ligne> lignes = new HashSet<>();
+            lignes.add(new Ligne(points[i+1],points[i+2]));
+            states[i+1][i+2]=new State(lignes, C);
         }
-
-        HashSet<Ligne> lignesN = new HashSet<>();
-        lignesN.add(new Ligne(points[a], points[b]));
-        State bestState = new State(lignesN, scores[a][b]);
-        for (int i = a + 1; i < b; i++) {
-            State sG = algoDynamique_rec(C, a, i, scores);
-//            HashSet<Ligne> l = new HashSet<>();
-//            l.add(new Ligne(points[a], points[i]));
-//            State sG = new State(l, scores[a][i]);
-            State sD = algoDynamique_rec(C, i, b, scores);
-            double score = sG.score + sD.score;
-            if (score < bestState.score) {
-                bestState.score = score;
-                sG.lignes.addAll(sD.lignes);
-                bestState = new State(sG.lignes, sG.score + sD.score);
+        for(int delta=2; delta<n; delta++){
+//            System.out.println("==========");
+            for (int a = 1, b=a+delta; b <= n; a++, b++) {
+                HashSet<Ligne> lignes = new HashSet<>();
+                lignes.add(new Ligne(points[a],points[b]));
+                states[a][b] = new State(lignes,distance(a,b)+C);
+                for (int i = a+1; i < b; i++) {
+//                    System.out.println(a+" "+i+" "+b);
+                    State sL = states[a][i];
+                    State sR = states[i][b];
+                    if(sL.score+sR.score<states[a][b].score){
+                        lignes = new HashSet<>(sL.lignes);
+                        lignes.addAll(sR.lignes);
+                        states[a][b] = new State(lignes, sL.score + sR.score);
+                    }
+                }
             }
         }
-        return bestState;
+//        for (State[] d : states) {
+//            System.out.println(Arrays.toString(d));
+//        }
+        return states[1][n];
     }
+
 
     public static void main(String[] args) {
         Random rand = new Random(42);
@@ -166,14 +159,14 @@ public class Main {
 
         double c = Double.parseDouble(JOptionPane.showInputDialog("valeur de  C : "));
         State s = new State(null, 0);
-        while (points.length < 19+1) {
+//        while (points.length < 19+1) {
             compteur=0;
             s = algoDynamique(c);
             System.out.println((points.length-1) +"\t"+compteur+"\t"+s.score);
-            points = Arrays.copyOf(points, points.length+1);
-            points[points.length-1] = new Point(points.length-1, rand.nextDouble()*3);
-            pointSet.add(points[points.length-1]);
-        }
+//            points = Arrays.copyOf(points, points.length+1);
+//            points[points.length-1] = new Point(points.length-1, rand.nextDouble()*3);
+//            pointSet.add(points[points.length-1]);
+//        }
 //        State s = algoEssaisSuccessif2(c);
 
         Visu v1 = new Visu(pointSet, s.lignes, "Solution de score " + s.score);
@@ -186,6 +179,11 @@ public class Main {
         public State(Set<Ligne> lignes, double score) {
             this.lignes = lignes;
             this.score = score;
+        }
+
+        @Override
+        public String toString() {
+            return ""+score;
         }
     }
 }
